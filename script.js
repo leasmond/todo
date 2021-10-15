@@ -20,7 +20,7 @@ function addTask() {
 
 function doneTask() {
   todoList.filter((item) => {
-    if (item.checked === true) {
+    if (item.checked) {
       item.done = true;
       item.checked = false;
     }
@@ -30,7 +30,7 @@ function doneTask() {
 
 function restoreTask() {
   todoList.filter((item) => {
-    if (item.checked === true) {
+    if (item.checked) {
       item.done = false;
       item.checked = false;
     }
@@ -38,10 +38,13 @@ function restoreTask() {
   });
 }
 
-function removeTask() {
-  checkedItems = todoList.filter((item) => item.checked !== true);
-  todoList = [];
-  todoList.push(...checkedItems);
+function removeTask(event, index) {
+  if (event) {
+    todoList.splice(index, 1);
+  } else {
+    checkedItems = todoList.filter((item) => !item.checked);
+    todoList = [...checkedItems];
+  }
   upgradeView();
 }
 
@@ -85,9 +88,10 @@ function upgradeView() {
     liElement.append(checkboxElement);
 
     const labelElement = document.createElement("label");
-    labelElement.className = item.done
-      ? "form-check-label mx-3 toDone"
-      : "form-check-label mx-3";
+    labelElement.className = "form-check-label mx-3";
+    item.done
+      ? labelElement.classList.add("toDone")
+      : labelElement.classList.remove("toDone");
     labelElement.setAttribute("for", `checkox${index}`);
     labelElement.innerText = item.content;
     liElement.append(labelElement);
@@ -98,7 +102,7 @@ function upgradeView() {
     doneButtonElement.innerText = "Done";
     doneButtonElement.addEventListener("click", () => {
       item.done = !item.done;
-      if (item.done === true) {
+      if (item.done) {
         labelElement.className = "form-check-label mx-3 toDone";
       } else {
         labelElement.className = "form-check-label mx-3";
@@ -110,9 +114,8 @@ function upgradeView() {
     removeButtonElement.type = "button";
     removeButtonElement.className = "btn btn-outline-danger";
     removeButtonElement.innerText = "Remove";
-    removeButtonElement.addEventListener("click", () => {
-      todoList.splice(index, 1);
-      upgradeView();
+    removeButtonElement.addEventListener("click", (event) => {
+      removeTask(event, index);
     });
     liElement.append(removeButtonElement);
   });
